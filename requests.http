@@ -1,0 +1,87 @@
+### ============================================================================
+### CuentasClaras FX Microservice — Request Collection (.http)
+### Compatible con VS Code REST Client / JetBrains HTTP Client
+### Reemplaza las variables de abajo con los valores de tu archivo .env local
+### ============================================================================
+
+@baseUrl = http://localhost:4001/api/v1
+@apiKey = replace_with_your_local_MICROSERVICE_API_KEY
+@clientId = cuentasclaras-main-app
+@clientSecret = replace_with_your_local_AUTH_CLIENT_SECRET
+
+### 1. Health Check (200 OK - Público)
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. Catálogo de Monedas Soportadas desde API externa Frankfurter (200 OK - Público)
+GET {{baseUrl}}/currencies
+Accept: application/json
+
+### 3. Consultar Tasas de Cambio Actuales (200 OK - Público)
+GET {{baseUrl}}/rates?base=USD&symbols=MXN,EUR,CAD
+Accept: application/json
+
+### 4. Validación 400: Código de moneda inválido en query string (400 Bad Request)
+GET {{baseUrl}}/rates?base=PESOS&symbols=123
+Accept: application/json
+
+### 5. Obtener Token JWT mediante credenciales de servicio (200 OK)
+# @name loginService
+POST {{baseUrl}}/auth/token
+Content-Type: application/json
+
+{
+  "clientId": "{{clientId}}",
+  "clientSecret": "{{clientSecret}}"
+}
+
+### 6. Endpoint Protegido SIN Autenticación (401 Unauthorized)
+POST {{baseUrl}}/conversions
+Content-Type: application/json
+
+{
+  "concept": "Cena en Nueva York",
+  "amount": 85.50,
+  "from": "USD",
+  "to": "MXN",
+  "participants": 3
+}
+
+### 7. Crear Conversión de Gasto Grupal CON Autenticación Bearer (201 Created)
+# @name createConversion
+POST {{baseUrl}}/conversions
+Content-Type: application/json
+Authorization: Bearer {{apiKey}}
+X-User-Id: demo-user-cuentasclaras
+
+{
+  "concept": "Cena en Nueva York",
+  "amount": 120,
+  "from": "USD",
+  "to": "MXN",
+  "participants": 4
+}
+
+### 8. Validación 400 en Endpoint Protegido: Monto negativo y moneda inválida (400 Bad Request)
+POST {{baseUrl}}/conversions
+Content-Type: application/json
+Authorization: Bearer {{apiKey}}
+
+{
+  "amount": -50,
+  "from": "XX",
+  "to": "MXN"
+}
+
+### 9. Listar Historial de Conversiones del Usuario (200 OK - Protegido)
+GET {{baseUrl}}/conversions?limit=10
+Accept: application/json
+Authorization: Bearer {{apiKey}}
+X-User-Id: demo-user-cuentasclaras
+
+### 10. Eliminar una Conversión por UUID (200 OK / 404 Not Found - Protegido)
+@conversionId = 00000000-0000-4000-8000-000000000000
+DELETE {{baseUrl}}/conversions/{{conversionId}}
+Authorization: Bearer {{apiKey}}
+X-User-Id: demo-user-cuentasclaras
+

@@ -1,0 +1,22 @@
+{
+  "name": "cuentasclaras-fx-microservice",
+  "version": "1.0.0",
+  "description": "REST microservice for multi-currency conversion and live exchange rates feeding the Expenses module of CuentasClaras (PRamses)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jose": "^6.0.10"
+  }
+}
+

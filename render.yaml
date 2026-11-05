@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: cuentasclaras-fx-microservice
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: EXTERNAL_API_BASE_URL
+        value: "https://api.frankfurter.dev/v1"
+      - key: EXTERNAL_API_TIMEOUT_MS
+        value: "8000"
+      - key: AUTH_CLIENT_ID
+        value: "cuentasclaras-main-app"
+      - key: MICROSERVICE_API_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AUTH_CLIENT_SECRET
+        generateValue: true
+

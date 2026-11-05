@@ -1,0 +1,107 @@
+{
+  "info": {
+    "name": "CuentasClaras FX Microservice",
+    "description": "Colección de pruebas REST para el microservicio de divisas que alimenta el módulo de gastos de CuentasClaras (PRamses).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4001/api/v1" },
+    { "key": "apiKey", "value": "replace_with_your_local_MICROSERVICE_API_KEY" },
+    { "key": "clientId", "value": "cuentasclaras-main-app" },
+    { "key": "clientSecret", "value": "replace_with_your_local_AUTH_CLIENT_SECRET" },
+    { "key": "conversionId", "value": "00000000-0000-4000-8000-000000000000" }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check (200)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "2. Listar Monedas - Third-Party API (200)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/currencies"
+      }
+    },
+    {
+      "name": "3. Consultar Tipos de Cambio (200)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/rates?base=USD&symbols=MXN,EUR,CAD"
+      }
+    },
+    {
+      "name": "4. Validación Fallida en Rates (400)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/rates?base=INVALID"
+      }
+    },
+    {
+      "name": "5. Emitir Token JWT (200)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clientId\": \"{{clientId}}\",\n  \"clientSecret\": \"{{clientSecret}}\"\n}"
+        },
+        "url": "{{baseUrl}}/auth/token"
+      }
+    },
+    {
+      "name": "6. Crear Conversión SIN Token (401)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 100,\n  \"from\": \"USD\",\n  \"to\": \"MXN\"\n}"
+        },
+        "url": "{{baseUrl}}/conversions"
+      }
+    },
+    {
+      "name": "7. Crear Conversión Autenticada (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+          { "key": "X-User-Id", "value": "demo-user-cuentasclaras" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"concept\": \"Cena grupal en viaje\",\n  \"amount\": 120,\n  \"from\": \"USD\",\n  \"to\": \"MXN\",\n  \"participants\": 4\n}"
+        },
+        "url": "{{baseUrl}}/conversions"
+      }
+    },
+    {
+      "name": "8. Listar Conversiones Guardadas (200 - Protegido)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+          { "key": "X-User-Id", "value": "demo-user-cuentasclaras" }
+        ],
+        "url": "{{baseUrl}}/conversions?limit=10"
+      }
+    },
+    {
+      "name": "9. Eliminar Conversión por ID (200 / 404 - Protegido)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{apiKey}}" },
+          { "key": "X-User-Id", "value": "demo-user-cuentasclaras" }
+        ],
+        "url": "{{baseUrl}}/conversions/{{conversionId}}"
+      }
+    }
+  ]
+}
+
