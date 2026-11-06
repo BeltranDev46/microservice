@@ -37,22 +37,25 @@ It consumes live reference exchange rates from the third-party **[Frankfurter AP
 
 ## Setup Steps
 
-### 1. Configure & Run the Microservice (`:4001`)
+### Prerequisites
+- **Node.js** `>= 20.0.0` and **npm** `>= 10.0.0`
+
+### 1. Clone, Configure & Run the Microservice (`:4001`)
 
 ```bash
-cd /Users/danielbeltran/Escritorio/micoservice
+# 1. Clone the repository and enter the directory
+git clone https://github.com/BeltranDev46/microservice.git
+cd microservice
 
-# 1. Install dependencies
+# 2. Install dependencies
 npm install
 
-# 2. Create your local .env from the template (if not already created)
+# 3. Create your local .env from the template
 cp .env.example .env
 ```
+*(On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`.)*
 
-Edit `.env` and set strong values for:
-- `MICROSERVICE_API_KEY`: Shared secret token used by `PRamses/backend` (`FX_SERVICE_API_KEY`).
-- `JWT_SECRET`: Secret key (32+ chars) used to sign JWTs in `/api/v1/auth/token`.
-- `AUTH_CLIENT_ID` / `AUTH_CLIENT_SECRET`: Client credentials for issuing JWT tokens.
+> **Note**: `.env.example` already includes working local defaults so the service starts immediately. For production, replace `MICROSERVICE_API_KEY`, `JWT_SECRET` (32+ chars), and `AUTH_CLIENT_SECRET` with strong random secrets.
 
 Start the microservice:
 
@@ -67,28 +70,36 @@ npm start
 Verify it is running:
 ```bash
 curl http://localhost:4001/api/v1/health
+curl "http://localhost:4001/api/v1/rates?base=USD&symbols=MXN,EUR"
 ```
 
 ---
 
-### 2. Connect & Run the Main Application (`PRamses`)
+### 2. Connect & Run the Main Application (`MonkyMoney / CuentasClaras`)
 
-1. In `/Users/danielbeltran/Escritorio/PRamses/backend/.env`, make sure the microservice URL and API key match your microservice `.env` (see `PRamses/backend/.env.example`):
+1. Clone the main application repository and configure `backend/.env`:
+   ```bash
+   git clone https://github.com/BeltranDev46/MonkyMoney.git
+   cd MonkyMoney/backend
+   npm install
+   cp .env.example .env
+   ```
+   Make sure `FX_SERVICE_URL` and `FX_SERVICE_API_KEY` in `MonkyMoney/backend/.env` match your microservice `.env` (they already match by default when copied from `.env.example`):
    ```env
    FX_SERVICE_URL="http://localhost:4001/api/v1"
-   FX_SERVICE_API_KEY="<same value as MICROSERVICE_API_KEY>"
+   FX_SERVICE_API_KEY="replace_with_a_strong_service_api_key"
    ```
-2. Start `PRamses` backend (`:3001`):
+2. Start the main backend (`:3001`):
    ```bash
-   cd /Users/danielbeltran/Escritorio/PRamses/backend
    npm run dev
    ```
-3. Start `PRamses` frontend (`:5173`):
+3. In a new terminal, start the React frontend (`:5173`):
    ```bash
-   cd /Users/danielbeltran/Escritorio/PRamses/frontend
+   cd MonkyMoney/frontend
+   npm install
    npm run dev
    ```
-4. Open `http://localhost:5173`, open any group with at least 2 friends, and click **"Otra moneda (USD, EUR...)"** inside the **Nuevo gasto / Separar cuenta** card to convert foreign expenses to `MXN` in real time and apply them directly to the group expense.
+4. Open `http://localhost:5173`, open any group with at least 2 friends, and use the **Conversor multimoneda en tiempo real** inside **Nuevo gasto / Separar cuenta** to convert foreign expenses to `MXN` in real time and apply them directly to the group expense.
 
 ---
 
